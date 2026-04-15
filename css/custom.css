@@ -1,0 +1,233 @@
+/* Custom Styles for Round 2 Updates */
+
+/* Ensure Product Gallery images have height (for placeholders) */
+.product__item__pic {
+    height: 360px;
+    background-color: #f3f2ee;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Make client logos normal size (reverted per request) */
+.client__item {
+    margin-bottom: 50px;
+}
+
+.client__item img {
+    /* transform: scale(1.3); Removed to prevent blurriness */
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.client__item:hover img {
+    transform: scale(1.1);
+    /* Slight hover effect is okay */
+}
+
+/* Gap between Hero and Top Products */
+.product.spad {
+    padding-top: 150px;
+    /* Increased from default 100px */
+}
+
+/* Adjust layout spacing if needed */
+.testimonial {
+    margin-top: 50px;
+}
+
+/* Map Default Size */
+.map-container,
+.map-container iframe {
+    height: 500px;
+}
+
+/* --- MOBILE RESPONSIVENESS UPDATES --- */
+@media only screen and (max-width: 767px) {
+
+    /* Hero Section Typography */
+    .hero__text {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        /* Slight shadow to lift it off the background */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero__text h6 {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .hero__text h2 {
+        font-size: 32px;
+        line-height: 40px;
+        margin-bottom: 15px;
+    }
+
+    .hero__text p {
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    /* Hero Slider Navigation Arrows */
+    .hero__slider.owl-carousel .owl-nav button {
+        top: auto !important;
+        bottom: -25px !important;
+        width: 35px !important;
+        height: 35px !important;
+        line-height: 35px !important;
+        font-size: 18px !important;
+        margin-top: 0 !important;
+        background: #111 !important;
+        color: #fff !important;
+    }
+
+    .hero__slider.owl-carousel .owl-nav button.owl-prev {
+        left: 15px !important;
+    }
+
+    .hero__slider.owl-carousel .owl-nav button.owl-next {
+        right: 15px !important;
+    }
+
+    /* Section Titles Typography */
+    .section-title h2 {
+        font-size: 26px !important;
+        margin-top: 5px !important;
+    }
+
+    .section-title span {
+        font-size: 12px !important;
+    }
+
+    .section-title p {
+        font-size: 14px;
+    }
+
+    /* Spacing Overrides */
+    .product.spad {
+        padding-top: 60px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .whatsapp-join.spad {
+        padding: 40px 0 !important;
+    }
+
+    .clients.spad {
+        padding: 40px 0 !important;
+    }
+
+    /* Map Size Adjustments */
+    .map-container,
+    .map-container iframe {
+        height: 250px !important;
+    }
+
+    /* Testimonial Section Adjustments */
+    .testimonial__pic {
+        height: 300px !important;
+        /* Shrunk from 600px */
+    }
+
+    .testimonial__text {
+        padding: 50px 20px 60px !important;
+        /* Reduced massive padding */
+    }
+
+    .testimonial__text p {
+        font-size: 16px !important;
+        font-style: normal !important;
+        /* Remove old-fashioned italic */
+        line-height: 26px !important;
+        color: #333 !important;
+        font-weight: 400 !important;
+    }
+
+    .testimonial__text span.icon_quotations {
+        font-size: 40px !important;
+        /* Smaller quote icon */
+        color: #111 !important;
+    }
+
+    /* Contact Section Padding */
+    .contact.spad {
+        padding-top: 40px !important;
+        padding-bottom: 20px !important;
+    }
+
+    .contact__text {
+        margin-bottom: 30px;
+    }
+
+    /* Footer adjustments */
+    .footer {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+
+    /* Image Sizes */
+    .product__item__pic {
+        height: 200px;
+        /* Reduced from 360px */
+    }
+
+    /* Navbar/Header Adjustments */
+    .header {
+        padding: 15px 0;
+    }
+
+    .canvas__open {
+        top: 25px;
+        right: 15px;
+    }
+
+    /* Offcanvas Mobile Menu Modernization */
+    .offcanvas-menu-wrapper {
+        background-color: #ffffff;
+        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.05);
+        padding: 50px 30px 30px;
+    }
+
+    .slicknav_nav {
+        background: transparent !important;
+        margin-top: 20px;
+    }
+
+    .slicknav_nav a {
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        color: #111 !important;
+        padding: 15px 0 !important;
+        margin: 0 !important;
+        border-bottom: 1px solid #f1f1f1 !important;
+        text-transform: none !important;
+        transition: all 0.3s ease;
+    }
+
+    .slicknav_nav a:hover {
+        padding-left: 10px !important;
+        color: #e53637 !important;
+        /* Madefit primary red accent if they have one or keep black */
+    }
+
+    .offcanvas__text p {
+        font-size: 14px;
+        color: #666;
+        margin-top: 30px;
+        line-height: 22px;
+    }
+
+    /* Button Adjustments */
+    .primary-btn {
+        padding: 10px 20px;
+        font-size: 12px;
+        white-space: nowrap !important;
+        /* Prevent overlap by keeping text and arrow on same line */
+    }
+
+    .hero__text .primary-btn span {
+        font-size: 16px;
+        top: 2px;
+    }
+}

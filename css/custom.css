@@ -231,3 +231,22 @@
         top: 2px;
     }
 }
+
+/* Improve navbar logo clarity and sizing on mobile */
+.header__logo .logo-img{
+    display: block;
+    width: auto;
+    max-height: 64px; /* desktop/tablet */
+    -webkit-optimize-contrast: auto;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+@media (max-width: 768px){
+    .header__logo .logo-img{
+        max-height: 44px; /* mobile */
+    }
+}
+
+/* Tip: For best results, replace `img/logo.png` with a higher-resolution PNG or an SVG,
+   and use `srcset` (e.g. `logo@2x.png 2x`) so retina devices render a crisp logo. */

@@ -401,35 +401,38 @@
     <script src="js/main.js"></script>
 
     <!-- Direct Instagram Graph API Integration -->
+    <script src="js/config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('insta-feed-container');
             const loadingMsg = document.getElementById('insta-loading-msg');
-            let instagramAccessToken = '';
+            let instagramAccessToken = window.INSTAGRAM_ACCESS_TOKEN || '';
 
-            try {
-                // Fetch the .env file from the root directory
-                const envResponse = await fetch('.env');
-                if (envResponse.ok) {
-                    const envText = await envResponse.text();
-                    const envLines = envText.split('\n');
-                    for (const line of envLines) {
-                        const trimmed = line.trim();
-                        if (trimmed && !trimmed.startsWith('#')) {
-                            const eqIdx = trimmed.indexOf('=');
-                            if (eqIdx !== -1) {
-                                const key = trimmed.slice(0, eqIdx).trim();
-                                const val = trimmed.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
-                                if (key === 'INSTAGRAM_ACCESS_TOKEN') {
-                                    instagramAccessToken = val;
-                                    break;
+            if (!instagramAccessToken) {
+                try {
+                    // Fetch the .env file from the root directory
+                    const envResponse = await fetch('.env');
+                    if (envResponse.ok) {
+                        const envText = await envResponse.text();
+                        const envLines = envText.split('\n');
+                        for (const line of envLines) {
+                            const trimmed = line.trim();
+                            if (trimmed && !trimmed.startsWith('#')) {
+                                const eqIdx = trimmed.indexOf('=');
+                                if (eqIdx !== -1) {
+                                    const key = trimmed.slice(0, eqIdx).trim();
+                                    const val = trimmed.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
+                                    if (key === 'INSTAGRAM_ACCESS_TOKEN') {
+                                        instagramAccessToken = val;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+                } catch (err) {
+                    console.warn("Could not load .env file:", err);
                 }
-            } catch (err) {
-                console.warn("Could not load .env file:", err);
             }
 
             // If token is not configured yet, display a helpful message to the user

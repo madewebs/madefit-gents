@@ -406,76 +406,87 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('insta-feed-container');
             const loadingMsg = document.getElementById('insta-loading-msg');
-            let instagramAccessToken = window.INSTAGRAM_ACCESS_TOKEN || '';
+            let data = null;
 
-            if (!instagramAccessToken) {
-                try {
-                    // Fetch the .env file from the root directory
-                    const envResponse = await fetch('.env');
-                    if (envResponse.ok) {
-                        const envText = await envResponse.text();
-                        const envLines = envText.split('\n');
-                        for (const line of envLines) {
-                            const trimmed = line.trim();
-                            if (trimmed && !trimmed.startsWith('#')) {
-                                const eqIdx = trimmed.indexOf('=');
-                                if (eqIdx !== -1) {
-                                    const key = trimmed.slice(0, eqIdx).trim();
-                                    const val = trimmed.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
-                                    if (key === 'INSTAGRAM_ACCESS_TOKEN') {
-                                        instagramAccessToken = val;
-                                        break;
+            // 1. Try Vercel Serverless Function first (Secure Production flow)
+            try {
+                const apiResponse = await fetch('/api/instagram');
+                if (apiResponse.ok) {
+                    const result = await apiResponse.json();
+                    data = result.data;
+                }
+            } catch (apiErr) {
+                console.log("Vercel Serverless API not available, falling back...", apiErr);
+            }
+
+            // 2. If Serverless API is not available, try local config/env fallbacks (Development flow)
+            if (!data) {
+                let instagramAccessToken = window.INSTAGRAM_ACCESS_TOKEN || '';
+
+                if (!instagramAccessToken) {
+                    try {
+                        const envResponse = await fetch('.env');
+                        if (envResponse.ok) {
+                            const envText = await envResponse.text();
+                            const envLines = envText.split('\n');
+                            for (const line of envLines) {
+                                const trimmed = line.trim();
+                                if (trimmed && !trimmed.startsWith('#')) {
+                                    const eqIdx = trimmed.indexOf('=');
+                                    if (eqIdx !== -1) {
+                                        const key = trimmed.slice(0, eqIdx).trim();
+                                        const val = trimmed.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
+                                        if (key === 'INSTAGRAM_ACCESS_TOKEN') {
+                                            instagramAccessToken = val;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+                    } catch (err) {
+                        console.warn("Could not load .env file:", err);
                     }
-                } catch (err) {
-                    console.warn("Could not load .env file:", err);
+                }
+
+                if (instagramAccessToken) {
+                    try {
+                        const response = await fetch(`https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&limit=6&access_token=${instagramAccessToken}`);
+                        if (response.ok) {
+                            const result = await response.json();
+                            data = result.data;
+                        } else {
+                            const errData = await response.json();
+                            throw new Error(errData.error?.message || `HTTP error! Status: ${response.status}`);
+                        }
+                    } catch (err) {
+                        console.error("Error loading via local fallback:", err);
+                        loadingMsg.innerHTML = `<p style="color: #dc3545; font-size: 14px;">Failed to load Instagram feed.<br><span style="color: #999; font-size: 12px;">${err.message}</span></p>`;
+                        return;
+                    }
                 }
             }
 
-            // If token is not configured yet, display a helpful message to the user
-            if (!instagramAccessToken) {
-                loadingMsg.innerHTML = '<p style="color: #666; font-size: 14px;">Please configure your <code>INSTAGRAM_ACCESS_TOKEN</code> in the <code>.env</code> file in the project root to load your feed dynamically.</p>';
-                return;
-            }
-
-            try {
-                const response = await fetch(`https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&limit=6&access_token=${instagramAccessToken}`);
-                
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || `HTTP error! Status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const data = result.data;
-
-                if (data && data.length > 0) {
-                    loadingMsg.style.display = 'none';
-                    let html = '';
-                    data.forEach(item => {
-                        // Use thumbnail for videos, media_url for images and carousels
-                        const mediaUrl = item.media_type === 'VIDEO' ? (item.thumbnail_url || item.media_url) : item.media_url;
-                        html += `
-                            <div class="col-lg-4 col-md-6 col-sm-6 col-6">
-                                <div class="product__item">
-                                    <a href="${item.permalink || '#'}" target="_blank">
-                                        <div class="product__item__pic set-bg" style="background-image: url('${mediaUrl}'); background-color: #f3f2ee; background-position: center; background-size: cover;">
-                                        </div>
-                                    </a>
-                                </div>
+            // 3. Render the gallery if we got data
+            if (data && data.length > 0) {
+                loadingMsg.style.display = 'none';
+                let html = '';
+                data.forEach(item => {
+                    const mediaUrl = item.media_type === 'VIDEO' ? (item.thumbnail_url || item.media_url) : item.media_url;
+                    html += `
+                        <div class="col-lg-4 col-md-6 col-sm-6 col-6">
+                            <div class="product__item">
+                                <a href="${item.permalink || '#'}" target="_blank">
+                                    <div class="product__item__pic set-bg" style="background-image: url('${mediaUrl}'); background-color: #f3f2ee; background-position: center; background-size: cover;">
+                                    </div>
+                                </a>
                             </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                } else {
-                    loadingMsg.innerHTML = '<p style="color: #666;">No recent Instagram posts found.</p>';
-                }
-            } catch (err) {
-                console.error("Error loading Instagram feed:", err);
-                loadingMsg.innerHTML = `<p style="color: #dc3545; font-size: 14px;">Failed to load Instagram feed.<br><span style="color: #999; font-size: 12px;">${err.message}</span></p>`;
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else if (!data) {
+                loadingMsg.innerHTML = '<p style="color: #666; font-size: 14px;">Please configure your <code>INSTAGRAM_ACCESS_TOKEN</code> in your Vercel Environment Variables or local <code>.env</code> file.</p>';
             }
         });
     </script>
